@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام مالي ونظام مخالفات</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .tab {
+            padding: 10px 20px;
+            background-color: #eee;
+            border-radius: 5px 5px 0 0;
+            cursor: pointer;
+            border: 1px solid #ddd;
+            border-bottom: none;
+        }
+        .tab.active {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .tab-content {
+            display: none;
+            padding: 20px;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 0 5px 5px 5px;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        button.secondary {
+            background-color: #f44336;
+        }
+        button.secondary:hover {
+            background-color: #d32f2f;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: right;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .section {
+            margin-bottom: 30px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .section h3 {
+            margin-top: 0;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+        .error {
+            color: red;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+        .success {
+            color: green;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+        .hidden {
+            display: none;
+        }
+        #pdfPreview {
+            border: 1px solid #ddd;
+            padding: 20px;
+            margin-top: 20px;
+            border-radius: 5px;
+            background-color: white;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        .pdf-container {
+            margin-top: 20px;
+            display: none;
+        }
+        .pdf-header {
+            text-align: center;
+            border-bottom: 2px solid #444;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        .pdf-content {
+            margin-bottom: 20px;
+        }
+        .pdf-footer {
+            margin-top: 30px;
+            text-align: center;
+            font-style: italic;
+            border-top: 1px solid #ddd;
+            padding-top: 10px;
+        }
+        .approval-code {
+            font-weight: bold;
+            color: #4CAF50;
+            border: 1px dashed #4CAF50;
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+        .search-box {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>نظام مالي ونظام مخالفات</h1>
+        
+        <div class="tabs">
+            <div class="tab active" data-tab="currency">النظام المالي</div>
+            <div class="tab" data-tab="violations">نظام المخالفات</div>
+        </div>
+        
+        <!-- النظام المالي -->
+        <div class="tab-content active" id="currency-content">
+            <div class="section">
+                <h3>إنشاء عملة جديدة</h3>
+                <div class="form-group">
+                    <label for="currencySerialNumber">الرقم التسلسلي:</label>
+                    <input type="text" id="currencySerialNumber" placeholder="أدخل الرقم التسلسلي">
+                </div>
+                <div class="form-group">
+                    <label for="currencyOwner">المالك:</label>
+                    <input type="text" id="currencyOwner" placeholder="أدخل اسم المالك">
+                </div>
+                <div class="form-group">
+                    <label for="currencyValue">القيمة:</label>
+                    <input type="number" id="currencyValue" placeholder="أدخل قيمة العملة">
+                </div>
+                <button id="createCurrency">إنشاء عملة</button>
+                <div id="currencyMessage" class="error"></div>
+            </div>
+            
+            <div class="section">
+                <h3>تحويل ملكية العملة</h3>
+                <div class="form-group">
+                    <label for="transferSerialNumber">الرقم التسلسلي للعملة:</label>
+                    <input type="text" id="transferSerialNumber" placeholder="أدخل الرقم التسلسلي للعملة">
+                </div>
+                <div class="form-group">
+                    <label for="newOwner">المالك الجديد:</label>
+                    <input type="text" id="newOwner" placeholder="أدخل اسم المالك الجديد">
+                </div>
+                <button id="transferCurrency">تحويل الملكية</button>
+                <div id="transferMessage" class="error"></div>
+            </div>
+            
+            <div class="section">
+                <h3>قائمة العملات</h3>
+                <div class="search-box">
+                    <input type="text" id="currencySearch" placeholder="ابحث عن عملة...">
+                </div>
+                <table id="currencyTable">
+                    <thead>
+                        <tr>
+                            <th>الرقم التسلسلي</th>
+                            <th>المالك</th>
+                            <th>القيمة</th>
+                            <th>تاريخ الإنشاء</th>
+                        </tr>
+                    </thead>
+                    <tbody id="currencyTableBody">
+                        <!-- هنا سيتم إضافة العملات ديناميكياً -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="pdf-container" id="currencyPdfContainer">
+                <div id="currencyPdfContent">
+                    <div class="pdf-header">
+                        <h2>تقرير تحويل ملكية عملة</h2>
+                    </div>
+                    <div class="pdf-content" id="currencyPdfDetails">
+                        <!-- سيتم ملء هذا القسم ديناميكياً -->
+                    </div>
+                    <div class="pdf-footer">
+                        <div>تم إنشاء هذا التقرير بواسطة النظام المالي</div>
+                        <div class="approval-code" id="currencyApprovalCode"></div>
+                    </div>
+                </div>
+                <button id="downloadCurrencyPdf">تنزيل PDF</button>
+            </div>
+        </div>
+        
+        <!-- نظام المخالفات -->
+        <div class="tab-content" id="violations-content">
+            <div class="section">
+                <h3>إضافة مواطن</h3>
+                <div class="form-group">
+                    <label for="citizenName">اسم المواطن:</label>
+                    <input type="text" id="citizenName" placeholder="أدخل اسم المواطن">
+                </div>
+                <div class="form-group">
+                    <label for="citizenId">رقم الهوية:</label>
+                    <input type="text" id="citizenId" placeholder="أدخل رقم الهوية">
+                </div>
+                <button id="addCitizen">إضافة مواطن</button>
+                <div id="citizenMessage" class="error"></div>
+            </div>
+            
+            <div class="section">
+                <h3>إضافة مخالفة</h3>
+                <div class="form-group">
+                    <label for="violationCitizenId">رقم هوية المواطن:</label>
+                    <input type="text" id="violationCitizenId" placeholder="أدخل رقم هوية المواطن">
+                </div>
+                <div class="form-group">
+                    <label for="violationDetails">تفاصيل المخالفة:</label>
+                    <input type="text" id="violationDetails" placeholder="أدخل تفاصيل المخالفة">
+                </div>
+                <div class="form-group">
+                    <label for="violationAmount">مبلغ المخالفة:</label>
+                    <input type="number" id="violationAmount" placeholder="أدخل مبلغ المخالفة">
+                </div>
+                <button id="addViolation">إضافة مخالفة</button>
+                <div id="violationMessage" class="error"></div>
+            </div>
+            
+            <div class="section">
+                <h3>قائمة المواطنين</h3>
+                <div class="search-box">
+                    <input type="text" id="citizenSearch" placeholder="ابحث عن مواطن...">
+                </div>
+                <table id="citizenTable">
+                    <thead>
+                        <tr>
+                            <th>الاسم</th>
+                            <th>رقم الهوية</th>
+                            <th>عدد المخالفات</th>
+                            <th>إجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody id="citizenTableBody">
+                        <!-- هنا سيتم إضافة المواطنين ديناميكياً -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="section hidden" id="citizenViolationsSection">
+                <h3>مخالفات المواطن: <span id="selectedCitizenName"></span></h3>
+                <table id="violationTable">
+                    <thead>
+                        <tr>
+                            <th>تفاصيل المخالفة</th>
+                            <th>المبلغ</th>
+                            <th>حالة الدفع</th>
+                            <th>تاريخ الإضافة</th>
+                            <th>إجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody id="violationTableBody">
+                        <!-- هنا سيتم إضافة المخالفات ديناميكياً -->
+                    </tbody>
+                </table>
+                <button id="backToCitizens">عودة لقائمة المواطنين</button>
+            </div>
+
+            <div class="pdf-container" id="violationPdfContainer">
+                <div id="violationPdfContent">
+                    <div class="pdf-header">
+                        <h2>تقرير مخالفة</h2>
+                    </div>
+                    <div class="pdf-content" id="violationPdfDetails">
+                        <!-- سيتم ملء هذا القسم ديناميكياً -->
+                    </div>
+                    <div class="pdf-footer">
+                        <div>تم إنشاء هذا التقرير بواسطة نظام المخالفات</div>
+                        <div class="approval-code" id="violationApprovalCode"></div>
+                    </div>
+                </div>
+                <button id="downloadViolationPdf">تنزيل PDF</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // استدعاء مكتبة jsPDF
+        const { jsPDF } = window.jspdf;
+        
+        // بيانات التطبيق
+        let currencies = [];
+        let citizens = [];
+        let violations = [];
+        let transactionHistory = [];
+        
+        // تحقق إذا كانت هناك بيانات مخزنة مسبقاً
+        function loadData() {
+            const savedCurrencies = localStorage.getItem('currencies');
+            const savedCitizens = localStorage.getItem('citizens');
+            const savedViolations = localStorage.getItem('violations');
+            const savedTransactions = localStorage.getItem('transactions');
+            
+            if (savedCurrencies) currencies = JSON.parse(savedCurrencies);
+            if (savedCitizens) citizens = JSON.parse(savedCitizens);
+            if (savedViolations) violations = JSON.parse(savedViolations);
+            if (savedTransactions) transactionHistory = JSON.parse(savedTransactions);
+            
+            // تحديث العروض
+            updateCurrencyTable();
+            updateCitizenTable();
+        }
+        
+        // حفظ البيانات في التخزين المحلي
+        function saveData() {
+            localStorage.setItem('currencies', JSON.stringify(currencies));
+            localStorage.setItem('citizens', JSON.stringify(citizens));
+            localStorage.setItem('violations', JSON.stringify(violations));
+            localStorage.setItem('transactions', JSON.stringify(transactionHistory));
+        }
+        
+        // إنشاء كود موافقة عشوائي (6 أرقام)
+        function generateApprovalCode() {
+            let code;
+            let isUnique = false;
+            
+            while (!isUnique) {
+                code = Math.floor(100000 + Math.random() * 900000).toString();
+                
+                // التحقق من أن الكود فريد
+                const existingCode = transactionHistory.find(t => t.approvalCode === code);
+                if (!existingCode) {
+                    isUnique = true;
+                }
+            }
+            
+            return code;
+        }
+        
+        // الحصول على التاريخ والوقت الحالي بتنسيق مناسب
+        function getCurrentDateTime() {
+            const now = new Date();
+            const date = now.toLocaleDateString('ar-SA');
+            const time = now.toLocaleTimeString('ar-SA');
+            return { date, time };
+        }
+        
+        // تحديث جدول العملات
+        function updateCurrencyTable() {
+            const tableBody = document.getElementById('currencyTableBody');
+            const searchText = document.getElementById('currencySearch').value.toLowerCase();
+            
+            tableBody.innerHTML = '';
+            
+            const filteredCurrencies = currencies.filter(currency => 
+                currency.serialNumber.toLowerCase().includes(searchText) || 
+                currency.owner.toLowerCase().includes(searchText)
+            );
+            
+            filteredCurrencies.forEach(currency => {
+                const row = document.createElement('tr');
+                
+                const serialCell = document.createElement('td');
+                serialCell.textContent = currency.serialNumber;
+                
+                const ownerCell = document.createElement('td');
+                ownerCell.textContent = currency.owner;
+                
+                const valueCell = document.createElement('td');
+                valueCell.textContent = currency.value;
+                
+                const dateCell = document.createElement('td');
+                dateCell.textContent = currency.createdAt;
+                
+                row.appendChild(serialCell);
+                row.appendChild(ownerCell);
+                row.appendChild(valueCell);
+                row.appendChild(dateCell);
+                
+                tableBody.appendChild(row);
+            });
+        }
+        
+        // تحديث جدول المواطنين
+        function updateCitizenTable() {
+            const tableBody = document.getElementById('citizenTableBody');
+            const searchText = document.getElementById('citizenSearch').value.toLowerCase();
+            
+            tableBody.innerHTML = '';
+            
+            const filteredCitizens = citizens.filter(citizen => 
+                citizen.name.toLowerCase().includes(searchText) || 
+                citizen.id.includes(searchText)
+            );
+            
+            filteredCitizens.forEach(citizen => {
+                const row = document.createElement('tr');
+                
+                const nameCell = document.createElement('td');
+                nameCell.textContent = citizen.name;
+                
+                const idCell = document.createElement('td');
+                idCell.textContent = citizen.id;
+                
+                const violationsCell = document.createElement('td');
+                const citizenViolations = violations.filter(v => v.citizenId === citizen.id);
+                violationsCell.textContent = citizenViolations.length;
+                
+                const actionsCell = document.createElement('td');
+                const viewButton = document.createElement('button');
+                viewButton.textContent = 'عرض المخالفات';
+                viewButton.addEventListener('click', () => showCitizenViolations(citizen));
+                
+                const deleteButton = document.createElement('button');
+                deleteButton.textContent = 'حذف';
+                deleteButton.classList.add('secondary');
+                deleteButton.addEventListener('click', () => deleteCitizen(citizen.id));
+                
+                actionsCell.appendChild(viewButton);
+                actionsCell.appendChild(deleteButton);
+                actionsCell.classList.add('action-buttons');
+                
+                row.appendChild(nameCell);
+                row.appendChild(idCell);
+                row.appendChild(violationsCell);
+                row.appendChild(actionsCell);
+                
+                tableBody.appendChild(row);
+            });
+        }
+        
+        // عرض مخالفات مواطن محدد
+        function showCitizenViolations(citizen) {
+            document.getElementById('citizenViolationsSection').classList.remove('hidden');
+            document.getElementById('selectedCitizenName').textContent = citizen.name + ' (' + citizen.id + ')';
+            
+            const tableBody = document.getElementById('violationTableBody');
+            tableBody.innerHTML = '';
+            
+            const citizenViolations = violations.filter(v => v.citizenId === citizen.id);
+            
+            citizenViolations.forEach(violation => {
+                const row = document.createElement('tr');
+                
+                const detailsCell = document.createElement('td');
+                detailsCell.textContent = violation.details;
+                
+                const amountCell = document.createElement('td');
+                amountCell.textContent = violation.amount;
+                
+                const statusCell = document.createElement('td');
+                statusCell.textContent = violation.status;
+                
+                const dateCell = document.createElement('td');
+                dateCell.textContent = violation.createdAt;
+                
+                const actionsCell = document.createElement('td');
+                
+                if (violation.status !== 'امتناع') {
+                    const paidButton = document.createElement('button');
+                    paidButton.textContent = 'تحديث الحالة';
+                    paidButton.addEventListener('click', () => updateViolationStatus(violation.id));
+                    actionsCell.appendChild(paidButton);
+                }
+                
+                const deleteButton = document.createElement('button');
+                deleteButton.textContent = 'امتناع';
+                deleteButton.classList.add('secondary');
+                deleteButton.addEventListener('click', () => rejectViolation(violation.id));
+                actionsCell.appendChild(deleteButton);
+                
+                const pdfButton = document.createElement('button');
+                pdfButton.textContent = 'PDF';
+                pdfButton.addEventListener('click', () => generateViolationPdf(violation));
+                actionsCell.appendChild(pdfButton);
+                
+                actionsCell.classList.add('action-buttons');
+                
+                row.appendChild(detailsCell);
+                row.appendChild(amountCell);
+                row.appendChild(statusCell);
+                row.appendChild(dateCell);
+                row.appendChild(actionsCell);
+                
+                tableBody.appendChild(row);
+            });
+        }
+        
+        // حذف مواطن
+        function deleteCitizen(citizenId) {
+            if (confirm('هل أنت متأكد من حذف هذا المواطن؟')) {
+                // حذف جميع مخالفات المواطن أولاً
+                violations = violations.filter(v => v.citizenId !== citizenId);
+                
+                // ثم حذف المواطن
+                citizens = citizens.filter(c => c.id !== citizenId);
+                
+                saveData();
+                updateCitizenTable();
+            }
+        }
+        
+        // تحديث حالة المخالفة
+        function updateViolationStatus(violationId) {
+            const violation = violations.find(v => v.id === violationId);
+            
+            if (violation) {
+                violation.status = violation.status === 'غير مدفوعة' ? 'مدفوعة' : 'غير مدفوعة';
+                saveData();
+                
+                const citizen = citizens.find(c => c.id === violation.citizenId);
+                showCitizenViolations(citizen);
+                
+                // تسجيل المعاملة
+                const { date, time } = getCurrentDateTime();
+                const transaction = {
+                    type: 'تحديث حالة مخالفة',
+                    violationId: violation.id,
+                    citizenId: violation.citizenId,
+                    oldStatus: violation.status === 'غير مدفوعة' ? 'مدفوعة' : 'غير مدفوعة',
+                    newStatus: violation.status,
+                    date,
+                    time,
+                    approvalCode: generateApprovalCode()
+                };
+                
+                transactionHistory.push(transaction);
+                saveData();
+            }
+        }
+        
+        // رفض المخالفة (امتناع)
+        function rejectViolation(violationId) {
+            const violation = violations.find(v => v.id === violationId);
+            
+            if (violation) {
+                violation.status = 'امتناع';
+                saveData();
+                
+                const citizen = citizens.find(c => c.id === violation.citizenId);
+                showCitizenViolations(citizen);
+                
+                // تسجيل المعاملة
+                const { date, time } = getCurrentDateTime();
+                const transaction = {
+                    type: 'امتناع عن مخالفة',
+                    violationId: violation.id,
+                    citizenId: violation.citizenId,
+                    oldStatus: 'غير مدفوعة',
+                    newStatus: 'امتناع',
+                    date,
+                    time,
+                    approvalCode: generateApprovalCode()
+                };
+                
+                transactionHistory.push(transaction);
+                saveData();
+                
+                // إنشاء PDF للمخالفة
+                generateViolationPdf(violation);
+            }
+        }
+        
+        // إنشاء PDF للمخالفة
+        function generateViolationPdf(violation) {
+            const pdfContainer = document.getElementById('violationPdfContainer');
+            const pdfContent = document.getElementById('violationPdfDetails');
+            const approvalCode = generateApprovalCode();
+            
+            // الحصول على معلومات المواطن
+            const citizen = citizens.find(c => c.id === violation.citizenId);
+            
+            // تنسيق التاريخ والوقت
+            const { date, time } = getCurrentDateTime();
+            
+            // إعداد محتوى PDF
+            pdfContent.innerHTML = `
+                <div>
+                    <h3>بيانات المواطن</h3>
+                    <p>الاسم: ${citizen.name}</p>
+                    <p>رقم الهوية: ${citizen.id}</p>
+                </div>
+                <div>
+                    <h3>تفاصيل المخالفة</h3>
+                    <p>التفاصيل: ${violation.details}</p>
+                    <p>المبلغ: ${violation.amount}</p>
+                    <p>الحالة: ${violation.status}</p>
+                    <p>تاريخ الإضافة: ${violation.createdAt}</p>
+                </div>
+                <div>
+                    <h3>معلومات المعاملة</h3>
+                    <p>تاريخ التقرير: ${date}</p>
+                    <p>وقت التقرير: ${time}</p>
+                </div>
+            `;
+            
+            document.getElementById('violationApprovalCode').textContent = `رمز الموافقة: ${approvalCode}`;
+            
+            // تسجيل المعاملة في السجل
+            const transaction = {
+                type: 'إنشاء تقرير مخالفة',
+                violationId: violation.id,
+                citizenId: violation.citizenId,
+                date,
+                time,
+                approvalCode
+            };
+            
+            transactionHistory.push(transaction);
+            saveData();
+            
+            // عرض الحاوية
+            pdfContainer.style.display = 'block';
+            
+            // التمرير إلى الحاوية
+            pdfContainer.scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        // تحميل ملف PDF للعملة
+        function downloadCurrencyPdf() {
+            const content = document.getElementById('currencyPdfContent');
+            
+            html2canvas(content).then(canvas => {
+                const imgData = canvas.toDataURL('image/png');
+                const pdf = new jsPDF('p', 'mm', 'a4');
+                const imgProps = pdf.getImageProperties(imgData);
+                const pdfWidth = pdf.internal.pageSize.getWidth();
+                const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+                
+                pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+                pdf.save('تقرير_تحويل_ملكية_عملة.pdf');
+        }
+        
+        // إنشاء PDF لتحويل ملكية العملة
+        function generateCurrencyTransferPdf(oldOwner, newOwner, currency) {
+            const pdfContainer = document.getElementById('currencyPdfContainer');
+            const pdfContent = document.getElementById('currencyPdfDetails');
+            const approvalCode = generateApprovalCode();
+            
+            // تنسيق التاريخ والوقت
+            const { date, time } = getCurrentDateTime();
+            
+            // إعداد محتوى PDF
+            pdfContent.innerHTML = `
+                <div>
+                    <h3>بيانات العملة</h3>
+                    <p>الرقم التسلسلي: ${currency.serialNumber}</p>
+                    <p>القيمة: ${currency.value}</p>
+                </div>
+                <div>
+                    <h3>تفاصيل التحويل</h3>
+                    <p>من: ${oldOwner}</p>
+                    <p>إلى: ${newOwner}</p>
+                </div>
+                <div>
+                    <h3>معلومات المعاملة</h3>
+                    <p>تاريخ التحويل: ${date}</p>
+                    <p>وقت التحويل: ${time}</p>
+                </div>
+            `;
+            
+            document.getElementById('currencyApprovalCode').textContent = `رمز الموافقة: ${approvalCode}`;
+            
+            // تسجيل المعاملة في السجل
+            const transaction = {
+                type: 'تحويل ملكية عملة',
+                currencyId: currency.serialNumber,
+                oldOwner,
+                newOwner,
+                date,
+                time,
+                approvalCode
+            };
+            
+            transactionHistory.push(transaction);
+            saveData();
+            
+            // عرض الحاوية
+            pdfContainer.style.display = 'block';
+            
+            // التمرير إلى الحاوية
+            pdfContainer.scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        // تحميل ملف PDF للمخالفة
+        function downloadViolationPdf() {
+            const content = document.getElementById('violationPdfContent');
+            
+            html2canvas(content).then(canvas => {
+                const imgData = canvas.toDataURL('image/png');
+                const pdf = new jsPDF('p', 'mm', 'a4');
+                const imgProps = pdf.getImageProperties(imgData);
+                const pdfWidth = pdf.internal.pageSize.getWidth();
+                const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+                
+                pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+                pdf.save('تقرير_مخالفة.pdf');
